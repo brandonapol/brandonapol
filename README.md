@@ -33,4 +33,5 @@ In 2023 I moved to Ohio and began working at Radiance Technologies as a "normal"
 
 - [birchwood.lol](https://birchwood.lol), which is a personal recipe site
 - Several ChatGPT plugins that I'm experimenting with
-- I'm the less-engineering-more-design half of [AutoButler](https://autobutler.org) and [Quark](https://github.com/autobutler-org/quark)
+- [VibeCheck](https://github.com/brandonapol/vibecheck), a test-driven-development NPM package that prevents agents from "cheating" on unit tests via CI
+- I'm the product owner / designer / marketing / second engineer half of [AutoButler](https://autobutler.org) and [Quark](https://github.com/autobutler-org/quark)
