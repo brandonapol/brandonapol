@@ -35,3 +35,9 @@ In 2023 I moved to Ohio and began working at Radiance Technologies as a "normal"
 - Several ChatGPT plugins that I'm experimenting with
 - [VibeCheck](https://github.com/brandonapol/vibecheck), a test-driven-development NPM package that prevents agents from "cheating" on unit tests via CI
 - I'm the product owner / designer / marketing / second engineer half of [AutoButler](https://autobutler.org) and [Quark](https://github.com/autobutler-org/quark)
+
+---
+
+### Get in touch
+
+Want to talk SRE, agentic programming, or anything above? [Connect with me on LinkedIn](https://linkedin.com/in/brandonapol) or [open an issue on this repo](https://github.com/brandonapol/brandonapol/issues/new) and I'll get back to you.
