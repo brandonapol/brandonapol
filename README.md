@@ -40,4 +40,4 @@ In 2023 I moved to Ohio and began working at Radiance Technologies as a "normal"
 
 ### Get in touch
 
-Want to talk SRE, agentic programming, or anything above? [Connect with me on LinkedIn](https://linkedin.com/in/brandonapol) or [open an issue on this repo](https://github.com/brandonapol/brandonapol/issues/new) and I'll get back to you.
+Want to talk SRE, agentic programming, or anything above? Let's hang! [Connect with me on LinkedIn](https://linkedin.com/in/brandonapol) or [open an issue on this repo](https://github.com/brandonapol/brandonapol/issues/new) and I'll get back to you!
