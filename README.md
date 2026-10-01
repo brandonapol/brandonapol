@@ -4,7 +4,7 @@
   </a>
 </p>
 
-## Hello!
+## Howdy!
 
 My name is Brandon. Fullstack / Site Reliability Engineer.
 
