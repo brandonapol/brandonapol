@@ -24,7 +24,7 @@ test.beforeEach(async ({ page }) => {
 test('loads the office with the HUD and a fresh quest', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#scene')).toBeVisible();
-  await expect(page.locator('#quest')).toContainText('0/13');
+  await expect(page.locator('#quest')).toContainText('0/14');
   await expect(page.locator('#skip')).toHaveAttribute('href', './resume.html');
   await expect(page.locator('#nowebgl')).toBeHidden();
 });
@@ -57,7 +57,7 @@ test('clicking the monitor opens the terminal', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(terminal).toBeHidden();
   await awaitLook(page);
-  await expect(page.locator('#quest')).toContainText('1/13');
+  await expect(page.locator('#quest')).toContainText('1/14');
 });
 
 test('the guitar plays the band on SoundCloud', async ({ page }) => {
@@ -96,6 +96,15 @@ test('the bookshelf lists books with Goodreads links', async ({ page }) => {
   await expect(card.locator('a.button')).toHaveAttribute('href', /goodreads\.com\/user\/show\/172350326/);
 });
 
+test('the photo wall opens a captioned gallery', async ({ page }) => {
+  await page.goto('./?open=photos');
+  const card = page.locator('#card');
+  await expect(card.locator('figure')).toHaveCount(8);
+  await expect(card).toContainText('Skied a marathon north of Fairbanks');
+  const loaded = await card.locator('img').first().evaluate((img) => img.decode().then(() => img.naturalWidth));
+  expect(loaded).toBeGreaterThan(0);
+});
+
 test('the gear wall lists the biggest climbs at work', async ({ page }) => {
   await page.goto('./?open=climbs');
   await expect(page.locator('#card')).toContainText('Seven services down to two');
@@ -117,15 +126,15 @@ test('the light switch toggles day and night', async ({ page }) => {
   await page.waitForFunction(() => window.__office?.lighting);
   await page.evaluate(() => window.__office.stations.activate(window.__office.stations.get('lights')));
   await page.waitForFunction(() => window.__office.lighting.t === 1);
-  await expect(page.locator('#quest')).toContainText('1/13');
+  await expect(page.locator('#quest')).toContainText('1/14');
 });
 
 test('quest progress survives a reload', async ({ page }) => {
   await page.goto('./?open=pad');
   await expect(page.locator('#card')).toContainText('Paradiddle');
-  await expect(page.locator('#quest')).toContainText('1/13');
+  await expect(page.locator('#quest')).toContainText('1/14');
   await page.goto('./');
-  await expect(page.locator('#quest')).toContainText('1/13');
+  await expect(page.locator('#quest')).toContainText('1/14');
 });
 
 test('the sound toggle remembers its state', async ({ page }) => {

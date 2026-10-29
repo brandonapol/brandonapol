@@ -11,7 +11,7 @@ import { sound, playParadiddle } from './audio.js';
 import { buildRoom, wallFrame, DOOR } from './props/room.js';
 import { buildDesk, DESK } from './props/desk.js';
 import { buildShelves } from './props/shelves.js';
-import { buildGear } from './props/gear.js';
+import { buildGear, bike, pack } from './props/gear.js';
 import { buildCooler, buildFloorLamp, buildMonstera, buildGuitar, buildPracticePad, buildPosters, buildLightSwitch } from './props/decor.js';
 import { buildLavaLamp } from './props/lavalamp.js';
 import { buildTopoMap } from './props/topo.js';
@@ -46,12 +46,23 @@ const gear = buildGear(scene);
 const posters = buildPosters(scene);
 
 const cooler = buildCooler();
-cooler.position.set(-1.45, 0, -1.35);
-cooler.rotation.y = Math.PI / 2;
+// Big pack in the corner, the cooler next to it along the west wall.
+const cornerPack = pack(0x26302a, 0.4, 0.72, 0.3);
+cornerPack.position.set(-1.6, 0, -1.6);
+cornerPack.rotation.set(-0.06, 0.6, 0);
+scene.add(cornerPack);
+cooler.position.set(-1.58, 0, -0.98);
+cooler.rotation.y = Math.PI / 2 + 0.05;
 scene.add(cooler);
 
+// The second bike leans in front of the closet.
+const closetBike = bike(0x8a8f98);
+closetBike.position.set(HALF - 0.38, 0, -0.64);
+closetBike.rotation.set(0, Math.PI / 2 + 0.05, 0.05);
+scene.add(closetBike);
+
 const floorLamp = buildFloorLamp();
-floorLamp.position.set(HALF - 0.22, 0, 0.0);
+floorLamp.position.set(HALF - 0.24, 0, 0.14);
 scene.add(floorLamp);
 
 const monstera = buildMonstera();
@@ -64,7 +75,7 @@ guitar.rotation.y = Math.atan2(1.5, -1.2);
 scene.add(guitar);
 
 const pad = buildPracticePad();
-pad.position.set(-1.35, 0, 1.02);
+pad.position.set(-1.36, 0, 0.98);
 scene.add(pad);
 
 const lava = buildLavaLamp();
@@ -134,7 +145,7 @@ stations.add({
 });
 
 cardStation('keyboard', desk.keyboard, focusFrom([0, DESK.top + 0.03, DESK.z + 0.14], [0, 1.1, 1], 0.6));
-cardStation('cooler', cooler, focusFrom([-1.45, 0.3, -1.35], [1, 0.9, 0.7], 1.0));
+cardStation('cooler', cooler, focusFrom([-1.58, 0.3, -0.98], [1, 0.9, 0.25], 1.0));
 cardStation('guitar', guitar, focusFrom([-1.5, 0.55, 1.45], [1.5, 0.45, -1.2], 1.15));
 
 let spinning = false;
@@ -153,11 +164,12 @@ cardStation('records', shelves.records.objects, focusFrom([-0.72, 0.85, HALF - 0
 });
 
 cardStation('library', shelves.books, focusFrom([-0.85, 1.3, HALF - 0.15], [0.1, 0.1, -1], 1.25));
-cardStation('climbs', gear.gear, focusFrom([1.0, 1.0, HALF - 0.35], [-0.35, 0.25, -1], 1.7));
+cardStation('climbs', gear.gear, focusFrom([0.72, 1.05, HALF - 0.25], [-0.2, 0.25, -1], 1.6));
 cardStation('topo', topo.group, focusFrom([HALF - 0.03, 1.62, 0.47], [-1, 0, 0], 0.85));
+cardStation('photos', posters.frames, focusFrom([1.27, 1.78, -HALF + 0.02], [-0.15, 0, 1], 1.15));
 cardStation('poster', posters.poster, focusFrom([-1.4, 1.55, -HALF + 0.02], [0.25, 0, 1], 1.05));
 
-cardStation('pad', pad, focusFrom([-1.35, 0.76, 1.02], [1, 1.1, -0.4], 0.85), {
+cardStation('pad', pad, focusFrom([-1.36, 0.76, 0.98], [1, 1.1, -0.4], 0.85), {
   extra: () =>
     el('div', { class: 'links' }, el('button', { type: 'button', class: 'button', onclick: () => drum() }, '▶ play it again')),
   onOpen: () => drum(),
@@ -170,7 +182,7 @@ function drum() {
   soundButton.classList.add('flash');
 }
 
-cardStation('lavalamp', lava.group, focusFrom([-HALF + 0.14, 1.32, 0.35], [1, 0.15, 0], 0.7), {
+cardStation('lavalamp', lava.group, focusFrom([-HALF + 0.15, 1.32, 0.0], [1, 0.15, 0], 0.7), {
   extra: () => {
     const code = el('code', { class: 'hash' }, '…');
     lava.entropy().then((h) => (code.textContent = h)).catch(() => (code.textContent = 'crypto.subtle unavailable here'));

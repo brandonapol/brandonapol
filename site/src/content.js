@@ -147,6 +147,25 @@ export const stations = {
     links: [{ label: 'ThePrimeagen on YouTube ↗', href: 'https://www.youtube.com/@ThePrimeTimeagen' }],
   },
 
+  photos: {
+    name: 'Photo wall',
+    hint: 'photos I’m proud of',
+    kicker: 'Photo wall',
+    title: 'Photos I’m proud of',
+    body: ['A few moments from outside the terminal.'],
+    // Wall layout (wall-local meters, right of the window): u, v, and frame width.
+    gallery: [
+      { src: 'photos/bikepacking-wv.webp', w: 1223, h: 917, at: [0.97, 2.1, 0.28], caption: 'Bikepacking in West Virginia: over 100 miles and two nights of camping with my good friend Jacob.', alt: 'Two loaded bikepacking bikes at an overlook above a forested West Virginia valley' },
+      { src: 'photos/climbing-alaska.webp', w: 688, h: 917, at: [1.27, 2.1, 0.17], caption: 'Climbing hard in Alaska with my friend PJ.', alt: 'Brandon in an orange beanie bouldering a granite block below snowy Alaska peaks' },
+      { src: 'photos/moose-hunt.webp', w: 1223, h: 917, at: [1.57, 2.1, 0.28], caption: 'Successful hunt!', alt: 'Brandon packing out moose antlers on a frame pack across autumn tundra' },
+      { src: 'photos/arctic-teaching.webp', w: 688, h: 917, at: [0.9, 1.76, 0.17], caption: 'Teaching in the Arctic.', alt: 'Brandon teaching outdoors on a gray Arctic beach' },
+      { src: 'photos/autobutler-james.webp', w: 1223, h: 917, at: [1.18, 1.76, 0.28], caption: 'Started autobutler.org with one of my best friends, James.', alt: 'Brandon and James smiling in a city park' },
+      { src: 'photos/ski-marathon.webp', w: 688, h: 917, at: [1.46, 1.76, 0.17], caption: 'Skied a marathon north of Fairbanks.', alt: 'Frosted selfie of Brandon with ice in his beard and eyebrows' },
+      { src: 'photos/bursa-mom.webp', w: 688, h: 917, at: [1.68, 1.76, 0.17], caption: 'My mom and me in Bursa, Turkey.', alt: 'Brandon and his mom under a decorated arch with Bursa written across it' },
+      { src: 'photos/always-wild.webp', w: 1508, h: 917, at: [1.12, 1.45, 0.32], caption: 'I’ve always been wild.', alt: 'Four kids covered in mud in a backyard, Brandon grinning in the middle' },
+    ],
+  },
+
   pad: {
     name: 'Practice pad',
     hint: 'press play',

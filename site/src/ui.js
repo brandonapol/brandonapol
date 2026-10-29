@@ -82,6 +82,15 @@ export class Card {
               allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture',
             })
           : null,
+        data.gallery?.length
+          ? el(
+              'div',
+              { class: 'gallery' },
+              data.gallery.map((p) =>
+                el('figure', {}, el('img', { src: p.src, alt: p.alt ?? '', loading: 'lazy', width: String(p.w), height: String(p.h) }), el('figcaption', {}, p.caption)),
+              ),
+            )
+          : null,
         data.note ? el('p', { class: 'note' }, data.note) : null,
         links.length ? el('div', { class: 'links' }, links) : null,
       ),

@@ -102,17 +102,20 @@ export function buildRoom(scene) {
 
   // Hexagonal acoustic panels.
   const hexMat = mat(0x18181c, { roughness: 1 });
-  const hex = (frame, u, v) => {
+  // Hung by hand, so none of them quite line up.
+  const hex = (frame, u, v, spin = 0) => {
     const h = mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.04, 6), hexMat);
     h.rotation.x = Math.PI / 2;
-    h.rotation.y = Math.PI / 6;
+    h.rotation.y = Math.PI / 6 + spin;
     frame.add(at(h, u, v, 0.02));
   };
+  // West wall: a cluster on each side of the small bookshelf.
   const west = wallFrame('west');
-  [[-0.2, 1.6], [0.15, 1.8], [0.15, 1.4], [0.5, 1.6]].forEach(([u, v]) => hex(west, u, v));
+  [[0.4, 1.52, 0.03], [0.74, 1.73, -0.02], [0.73, 1.33, 0.05]].forEach(([u, v, s]) => hex(west, u, v, s));
+  [[-0.8, 1.78, -0.04], [-1.13, 1.57, 0.02]].forEach(([u, v, s]) => hex(west, u, v, s));
   scene.add(west);
   const east = wallFrame('east');
-  [[0.38, 0.85], [0.72, 0.85]].forEach(([u, v]) => hex(east, u, v));
+  [[0.36, 0.88, 0.04], [0.71, 0.84, -0.03]].forEach(([u, v, s]) => hex(east, u, v, s));
   scene.add(east);
 
   // "5261-NY" plate above the door.
@@ -192,24 +195,14 @@ function buildCloset(scene) {
   box3.position.set(HALF + depth / 2 + 0.005, o.y1 / 2 - 0.01, (o.x0 + o.x1) / 2);
   scene.add(box3);
 
-  const shelf = mat(0x8a6a4a);
-  scene.add(at(box(depth - 0.05, 0.02, w - 0.02, shelf), HALF + depth / 2, 1.7, (o.x0 + o.x1) / 2));
-  // Gear bins (see the closet issue for what they'll do).
-  const bin = mat(0x8fb3c9, { roughness: 0.3, transparent: true, opacity: 0.8 });
-  const lid = mat(0x2d5c8a);
-  for (let i = 0; i < 3; i++) {
-    const y = 0.17 + i * 0.32;
-    const b = at(box(0.45, 0.3, 0.55, bin), HALF + 0.3, y, o.x1 - 0.32);
-    scene.add(b);
-    scene.add(at(box(0.47, 0.03, 0.57, lid), HALF + 0.3, y + 0.16, o.x1 - 0.32));
-  }
-  scene.add(at(box(0.4, 0.14, 0.5, 0xc9ccd0, { metalness: 0.8, roughness: 0.3 }), HALF + 0.3, 1.79, o.x1 - 0.35));
-
-  // Sliding doors: one parked over the other, half the closet open.
+  // Sliding doors, closed: the back panel on the left, the front one on the right.
   const door = mat(0xa8682f, { roughness: 0.55 });
+  const pull = mat(0x3a2414);
   const half = w / 2;
-  scene.add(at(box(0.03, o.y1 - 0.02, half + 0.02, door), HALF - 0.02, o.y1 / 2, o.x0 + half / 2));
-  scene.add(at(box(0.03, o.y1 - 0.02, half + 0.02, door), HALF - 0.05, o.y1 / 2, o.x0 + half / 2 + 0.06));
+  scene.add(at(box(0.03, o.y1 - 0.02, half + 0.03, door), HALF - 0.02, o.y1 / 2, o.x0 + half / 2));
+  scene.add(at(box(0.03, o.y1 - 0.02, half + 0.03, door), HALF - 0.05, o.y1 / 2, o.x1 - half / 2));
+  scene.add(at(box(0.005, 0.12, 0.03, pull), HALF - 0.036, 1.0, o.x0 + 0.06));
+  scene.add(at(box(0.005, 0.12, 0.03, pull), HALF - 0.066, 1.0, o.x1 - 0.06));
 }
 
 export { group };

@@ -132,7 +132,7 @@ function buildChair(scene) {
   const g = new THREE.Group();
   // Swiveled out toward the room, off to the right, so it doesn't hide the screens.
   g.position.set(0.78, 0, -0.78);
-  g.rotation.y = Math.PI - 0.7;
+  g.rotation.y = Math.PI / 2 + 0.35;
   g.scale.setScalar(0.92);
   const leather = mat(0x2e2e36, { roughness: 0.35, metalness: 0.1 });
   const chrome = mat(0xb9bcc2, { metalness: 0.9, roughness: 0.25 });

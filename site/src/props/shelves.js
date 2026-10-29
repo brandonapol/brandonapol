@@ -78,6 +78,7 @@ export function buildShelves(scene) {
   scene.add(south);
   const tall = shelfUnit(0.8, 1.85, 0.3, [0.03, 0.42, 0.79, 1.16, 1.5]);
   tall.position.x = 0.85;
+  tall.rotation.y = -0.015;
   south.add(tall);
   out.books = [];
   tall.add(
@@ -112,7 +113,8 @@ export function buildShelves(scene) {
   const west = wallFrame('west');
   scene.add(west);
   const small = shelfUnit(0.6, 1.1, 0.28, [0.03, 0.38, 0.73]);
-  small.position.x = -0.55;
+  small.position.x = -0.2;
+  small.rotation.y = 0.03;
   west.add(small);
   small.add(
     books(
@@ -139,6 +141,6 @@ export function buildShelves(scene) {
   hat.rotation.z = 0.05;
   small.add(hat);
 
-  out.lavaAnchor = { frame: west, u: -0.55 + 0.2, y: 1.11, z: 0.14 };
+  out.lavaAnchor = { frame: west, u: -0.2 + 0.2, y: 1.11, z: 0.15 };
   return out;
 }

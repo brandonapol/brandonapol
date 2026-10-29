@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mat, mesh, box, cyl, rod, at, rng } from '../util.js';
 import { wallFrame, WINDOW } from './room.js';
 import * as tex from '../textures.js';
+import { stations as copy } from '../content.js';
 
 function framed(map, w, h, frameColor = 0x15120f) {
   const g = new THREE.Group();
@@ -220,20 +221,26 @@ export function buildPosters(scene) {
   // Code Cop, left of the window.
   const poster = framed(tex.codeCop(), 0.45, 0.63, 0x0b0b0e);
   poster.position.set(WINDOW.x0 - 0.7, 1.55, 0);
+  poster.rotation.z = 0.015;
   north.add(poster);
 
-  // Photo wall, right of the window (placeholders until the photos arrive).
+  // Photo wall, right of the window.
   const frames = new THREE.Group();
-  const spots = [
-    [1.0, 1.85, 0.24, 0.3],
-    [1.4, 1.95, 0.3, 0.22],
-    [1.42, 1.62, 0.22, 0.28],
-    [1.05, 1.47, 0.26, 0.2],
-    [1.7, 1.42, 0.12, 0.16],
-  ];
-  spots.forEach(([u, v, w, h], i) => {
-    const f = framed(tex.photoPlaceholder(i), w, h, i % 2 ? 0xe8e4dc : 0x1a1612);
+  const loader = new THREE.TextureLoader();
+  copy.photos.gallery.forEach((photo, i) => {
+    const [u, v, w] = photo.at;
+    const placeholder = tex.photoPlaceholder(i);
+    const f = framed(placeholder, w, w * (photo.h / photo.w), i % 2 ? 0xe8e4dc : 0x1a1612);
+    loader.load(`${import.meta.env.BASE_URL}${photo.src}`, (t) => {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      // Read the material at load time: stations clone materials for hover tint.
+      const picture = f.children[1].material;
+      picture.map = t;
+      picture.needsUpdate = true;
+    });
     f.position.set(u, v, 0);
+    f.rotation.z = ((i * 7) % 5 - 2) * 0.012; // hung by eye
     frames.add(f);
   });
   north.add(frames);
@@ -242,12 +249,14 @@ export function buildPosters(scene) {
   const west = wallFrame('west');
   scene.add(west);
   const wave = framed(tex.greatWave(), 0.6, 0.42, 0xeeeae0);
-  wave.position.set(1.15, 1.45, 0);
+  wave.position.set(1.36, 1.5, 0);
+  wave.rotation.z = -0.025;
   west.add(wave);
   const south = wallFrame('south');
   scene.add(south);
   const land = framed(tex.landscape(), 0.3, 0.38, 0x2a1d12);
-  land.position.set(-0.05, 1.6, 0);
+  land.position.set(-0.74, 1.74, 0);
+  land.rotation.z = 0.02;
   south.add(land);
 
   return { poster, frames };

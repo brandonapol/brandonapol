@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { stations, links, projects, experience, finale } from '../src/content.js';
 
-const CARD_STATIONS = ['library', 'keyboard', 'cooler', 'guitar', 'records', 'climbs', 'topo', 'poster', 'pad', 'lavalamp', 'doorway'];
+const CARD_STATIONS = ['photos', 'library', 'keyboard', 'cooler', 'guitar', 'records', 'climbs', 'topo', 'poster', 'pad', 'lavalamp', 'doorway'];
 
 describe('content', () => {
   it('names and hints every station', () => {
@@ -34,6 +34,16 @@ describe('content', () => {
       ...finale.links.map((l) => l.href),
     ];
     for (const href of all) expect(href).toMatch(/^(https:\/\/|\.\/)/);
+  });
+
+  it('ships every photo-wall image', async () => {
+    const { existsSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    for (const p of stations.photos.gallery) {
+      // happy-dom swaps the global URL, so resolve from the package root instead.
+      expect(existsSync(join(process.cwd(), 'public', p.src)), p.src).toBe(true);
+      expect(p.caption && p.alt, p.src).toBeTruthy();
+    }
   });
 
   it('has work history in reverse order', () => {
