@@ -89,6 +89,23 @@ export const stations = {
     note: 'If you’re not logged in to Spotify, you’ll only hear 30-second previews.',
   },
 
+  library: {
+    name: 'Bookshelf',
+    hint: 'a few favorites',
+    kicker: 'Library',
+    title: 'Off the shelf',
+    body: ['A few books from my shelves. The rest are on Goodreads.'],
+    list: [
+      { title: 'Endure, Alex Hutchinson', text: 'The science of endurance and how far the limits really are.', href: 'https://www.goodreads.com/book/show/41014339-endure' },
+      { title: 'How to Lie with Statistics, Darrell Huff', text: 'Required reading for anyone who builds dashboards or reads SLO reports.', href: 'https://www.goodreads.com/book/show/51291.How_to_Lie_with_Statistics' },
+      { title: 'Mountaineering: The Freedom of the Hills', text: 'The climber’s textbook. It lives next to the ice axes.', href: 'https://www.goodreads.com/book/show/118565.Mountaineering' },
+      { title: 'On Food and Cooking, Harold McGee', text: 'The science behind the kitchen, and behind birchwood.lol.', href: 'https://www.goodreads.com/book/show/101255.On_Food_and_Cooking' },
+      { title: 'The Wee Free Men, Terry Pratchett', text: 'Discworld, Tiffany Aching, and the Nac Mac Feegle.', href: 'https://www.goodreads.com/book/show/34494.The_Wee_Free_Men' },
+      { title: 'The Screwtape Letters, C.S. Lewis', text: 'Lewis’s letters from a senior demon to his nephew.', href: 'https://www.goodreads.com/book/show/8130077-the-screwtape-letters' },
+    ],
+    links: [{ label: 'My Goodreads ↗', href: 'https://www.goodreads.com/user/show/172350326-brandon-apol' }],
+  },
+
   climbs: {
     name: 'Gear wall',
     hint: 'biggest climbs at work',

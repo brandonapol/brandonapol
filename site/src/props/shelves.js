@@ -79,6 +79,7 @@ export function buildShelves(scene) {
   const tall = shelfUnit(0.8, 1.85, 0.3, [0.03, 0.42, 0.79, 1.16, 1.5]);
   tall.position.x = 0.85;
   south.add(tall);
+  out.books = [];
   tall.add(
     books(
       [
@@ -89,6 +90,7 @@ export function buildShelves(scene) {
       41,
     ),
   );
+  out.books.push(tall.children.at(-1));
   // A modest number of books: the rest of the shelf is music.
   const sleeves = box(0.62, 0.32, 0.28, mat(0xffffff, { map: tex.recordSleeves(), roughness: 0.8 }));
   tall.add(at(sleeves, -0.05, 0.04 + 0.16, 0.15));
@@ -122,6 +124,7 @@ export function buildShelves(scene) {
       43,
     ),
   );
+  out.books.push(small.children.at(-1));
   const globe = new THREE.Group();
   globe.add(cyl(0.05, 0.06, 0.02, 0x3a2a1a));
   globe.add(rod([0, 0.01, 0], [0, 0.12, 0], 0.006, 0x8a6d3a, { metalness: 0.6 }));

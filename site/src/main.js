@@ -152,6 +152,7 @@ cardStation('records', shelves.records.objects, focusFrom([-0.72, 0.85, HALF - 0
   onClose: () => (spinning = false),
 });
 
+cardStation('library', shelves.books, focusFrom([-0.85, 1.3, HALF - 0.15], [0.1, 0.1, -1], 1.25));
 cardStation('climbs', gear.gear, focusFrom([1.0, 1.0, HALF - 0.35], [-0.35, 0.25, -1], 1.7));
 cardStation('topo', topo.group, focusFrom([HALF - 0.03, 1.62, 0.47], [-1, 0, 0], 0.85));
 cardStation('poster', posters.poster, focusFrom([-1.4, 1.55, -HALF + 0.02], [0.25, 0, 1], 1.05));

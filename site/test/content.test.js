@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { stations, links, projects, experience, finale } from '../src/content.js';
 
-const CARD_STATIONS = ['keyboard', 'cooler', 'guitar', 'records', 'climbs', 'topo', 'poster', 'pad', 'lavalamp', 'doorway'];
+const CARD_STATIONS = ['library', 'keyboard', 'cooler', 'guitar', 'records', 'climbs', 'topo', 'poster', 'pad', 'lavalamp', 'doorway'];
 
 describe('content', () => {
   it('names and hints every station', () => {

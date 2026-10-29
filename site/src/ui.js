@@ -60,7 +60,18 @@ export class Card {
         (data.body ?? []).map((p) => el('p', {}, p)),
         extra ?? null,
         data.list?.length
-          ? el('ul', { class: 'entries' }, data.list.map((i) => el('li', {}, el('strong', {}, i.title), el('span', {}, i.text))))
+          ? el(
+              'ul',
+              { class: 'entries' },
+              data.list.map((i) =>
+                el(
+                  'li',
+                  {},
+                  el('strong', {}, i.href ? el('a', { href: i.href, target: '_blank', rel: 'noopener' }, i.title) : i.title),
+                  el('span', {}, i.text),
+                ),
+              ),
+            )
           : null,
         data.embed
           ? el('iframe', {

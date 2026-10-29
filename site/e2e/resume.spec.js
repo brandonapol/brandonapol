@@ -14,4 +14,6 @@ test('résumé page keeps the phone number and email off the public site', async
   const text = await page.locator('body').innerText();
   expect(text).not.toMatch(/\d{3}-\d{3}-\d{4}/);
   expect(text).not.toMatch(/@gmail\.com/);
+  expect(text).not.toMatch(/TS\/SCI/);
+  expect(text).toMatch(/Cleared/);
 });
