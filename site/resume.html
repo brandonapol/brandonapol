@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brandon Apol · Résumé</title>
+    <meta name="description" content="Résumé of Brandon Apol, Fullstack / Site Reliability Engineer." />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --ink: #1c1a24;
+        --muted: #5d5870;
+        --accent: #6d4fd8;
+        --line: #e4e0ee;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #0f0d17; --ink: #ebe7f5; --muted: #a69cc2; --accent: #a78bfa; --line: #2f2948; }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+      a { color: var(--accent); }
+      nav { font-size: 14px; margin-bottom: 28px; }
+      h1 { margin: 0; font-size: 32px; }
+      .role { margin: 4px 0 10px; font-weight: 600; }
+      .contact { margin: 0; color: var(--muted); font-size: 14px; }
+      h2 { margin: 36px 0 12px; padding-bottom: 4px; border-bottom: 1px solid var(--line); font-size: 18px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+      h3 { margin: 22px 0 2px; font-size: 17px; }
+      .dates { margin: 0 0 6px; color: var(--muted); font-size: 14px; font-style: italic; }
+      ul { margin: 0; padding-left: 20px; }
+      li { margin: 3px 0; }
+      .skills { list-style: none; padding: 0; }
+      @media print {
+        nav { display: none; }
+        main { padding: 0; }
+        body { font-size: 11pt; }
+        a { color: inherit; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav><a href="./">← back to the office</a></nav>
+
+      <header>
+        <h1>Brandon Apol</h1>
+        <p class="role">Fullstack / Site Reliability Engineer | TS/SCI</p>
+        <p class="contact">
+          Dayton, OH (Flexible) ·
+          <a href="https://linkedin.com/in/brandonapol">linkedin.com/in/brandonapol</a> ·
+          <a href="https://github.com/brandonapol">github.com/brandonapol</a> ·
+          <a href="https://autobutler.org">autobutler.org</a>
+        </p>
+      </header>
+
+      <section>
+        <h2>Skills</h2>
+        <ul class="skills">
+          <li><strong>Languages:</strong> TypeScript, Python, Bash</li>
+          <li><strong>Frontend:</strong> React, Redux, Angular, Vue, Next.js, Jest, Cypress</li>
+          <li><strong>Backend:</strong> Express.js, Django, FastAPI, Flask, PostgreSQL, MongoDB</li>
+          <li><strong>DevOps/Infra:</strong> Kubernetes, Helm, ArgoCD, Istio, Docker, Ansible, Jenkins, GitLab CI, CI/CD, SysAdmin, Air-gapped environments</li>
+          <li><strong>Cloud/Platforms:</strong> AWS, DigitalOcean</li>
+          <li><strong>Auth/Identity:</strong> OAuth, OIDC, AuthZen</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Experience</h2>
+
+        <h3>Senior Site Reliability Engineer, AFISRE · Radiance Technologies</h3>
+        <p class="dates">05/2025 – Present</p>
+        <ul>
+          <li>Co-founded the SRE practice at Radiance and for the Air Force Intelligence Community</li>
+          <li>Standardized CI and Helm chart approaches for team microservices, and wrote specifications for company-wide standardizations</li>
+          <li>Deployed and validated software in air-gapped and frontier compute environments; trained personnel on classified networks with zero remote support options</li>
+          <li>Ran the first-ever on-call rotation and coached system administrators on classified networks with no outside access to manually roll back on failures, which was a product requirement; owned the result either way</li>
+          <li>Served as primary technical face to customers for infrastructure: briefed stakeholders, onboarded operators, and maintained trust in high-stakes environments</li>
+          <li>Compressed release cadence from biannual to weekly by tightening the loop between field feedback, engineering, and deployment</li>
+        </ul>
+
+        <h3>Tech Lead, Workflows · Radiance Technologies</h3>
+        <p class="dates">08/2024 – 08/2025</p>
+        <ul>
+          <li>Led both a core team of 6 engineers with over 50 years of cumulative experience, as well as a broader platform and developer environment serving around 30 engineers</li>
+          <li>Nominated for Collaborator of the Year in the Dayton branch</li>
+          <li>Redesigned and rewrote our UI to use modern libraries like TanStack and React</li>
+          <li>Simplified the platform by eliminating several microservices and tens of thousands of lines of code, reducing operational burden</li>
+          <li>Explored AI usage for the company as part of the Radiance internal LLM pilot</li>
+        </ul>
+
+        <h3>Fullstack Engineer, Workflows · Radiance Technologies</h3>
+        <p class="dates">03/2023 – Present</p>
+        <ul>
+          <li>Installed, containerized, administered, and automated applications written by Radiance as well as external products with Helm charts</li>
+          <li>Debugged and optimized front-end applications, including writing unit testing and removing bottlenecks to prevent a Leaflet bug from crashing user browsers</li>
+          <li>Integrated applications in Kubernetes environments, including automation and Jenkins pipelines</li>
+          <li>Led multiple teams efficiently as a Scrum master</li>
+          <li>Implemented authentication and authorization integrations for multiple applications in a Kubernetes environment</li>
+        </ul>
+
+        <h3>Senior Research Lead · Coding Temple</h3>
+        <p class="dates">08/2022 – 03/2023</p>
+        <ul>
+          <li>Prototyped and moderated new TypeScript and JavaScript web curriculum for Coding Temple's Front End self-paced course</li>
+          <li>Incorporated new technologies like Next.js, TailwindCSS, React 18, and Vue 3 into educational codebases</li>
+          <li>Wrote full-stack and front-end apps in various frameworks, including React, Next.js, Express, and Vue, all with TypeScript</li>
+          <li>Created recorded lectures and assignments with OBS, Kajabi, GitHub, and Asana</li>
+          <li>Led and upskilled a team of teaching aides via technical coaching and debugging assistance</li>
+        </ul>
+
+        <h3>Software Instructor · Coding Temple</h3>
+        <p class="dates">08/2021 – 08/2022</p>
+        <ul>
+          <li>Architected full-stack and data analysis self-paced bootcamp curricula for Coding Temple</li>
+          <li>Invented an asynchronous course that redesigned the live class into a $1.1M ARR asynchronous product</li>
+          <li>Researched new technologies and created educational content for TypeScript, CI/CD, Docker, automation and hosting, R, and more</li>
+          <li>Instructed students on implementing algorithms in Python, Flask apps, React/TS, and data analysis</li>
+          <li>Received AWS Certified Cloud Practitioner certification in Feb 2022</li>
+        </ul>
+
+        <h3>Software Developer · Self-Led Projects</h3>
+        <p class="dates">05/2021 – Present</p>
+        <ul>
+          <li>Co-founded AutoButler LLC (<a href="https://autobutler.org">autobutler.org</a>), a faster, safer way to do cloud storage</li>
+          <li>Built a personal portfolio with Flask and hosted it on DigitalOcean in a Docker container</li>
+          <li>Engineered an MVC code generator application to bootstrap Flask back-ends instantly</li>
+          <li>Overengineered a handmade CMS for a RESTful blog site, running on Kubernetes with Auth0 for cluster-level authentication</li>
+          <li>"Underengineered" a recipe blog called Birchwood (<a href="https://birchwood.lol">birchwood.lol</a>) that I automated with CI to run for free as a contrast to the above blog</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Education</h2>
+        <h3>Bachelor of Music Education (B.M.E.) · Cedarville University, OH</h3>
+        <p class="dates">05/2017</p>
+      </section>
+
+      <section>
+        <h2>Other interests</h2>
+        <p>Ice climbing, home lab, cross country skiing, wilderness survival, swanky coffee, music theory, bikepacking, Linux kernels, compilers, theology.</p>
+      </section>
+    </main>
+  </body>
+</html>

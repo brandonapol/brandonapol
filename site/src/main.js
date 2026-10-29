@@ -1,368 +1,239 @@
 import * as THREE from 'three';
 import './style.css';
-
-// Room is roughly the size of the real office, in meters. The desk wall
-// (with the window, in the real room) is at -z; the camera looks in from +z.
-const ROOM = { w: 4.2, d: 3.6, h: 2.5 };
-const PLAYER_RADIUS = 0.22;
-const PLAYER_SPEED = 1.8;
-const INTERACT_DISTANCE = 0.75;
+import { HALF } from './util.js';
+import { stations as copy, finale } from './content.js';
+import { LookControls } from './controls.js';
+import { Stations, focusFrom } from './stations.js';
+import { Tooltip, Card, Quest, el } from './ui.js';
+import { Terminal } from './terminal.js';
+import { Lighting } from './lighting.js';
+import { sound, playParadiddle } from './audio.js';
+import { buildRoom, wallFrame, DOOR } from './props/room.js';
+import { buildDesk, DESK } from './props/desk.js';
+import { buildShelves } from './props/shelves.js';
+import { buildGear } from './props/gear.js';
+import { buildCooler, buildFloorLamp, buildMonstera, buildGuitar, buildPracticePad, buildPosters, buildLightSwitch } from './props/decor.js';
+import { buildLavaLamp } from './props/lavalamp.js';
+import { buildTopoMap } from './props/topo.js';
 
 const canvas = document.querySelector('#scene');
-const promptEl = document.querySelector('#prompt');
-const computerEl = document.querySelector('#computer');
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+} catch {
+  document.querySelector('#nowebgl').hidden = false;
+  throw new Error('WebGL unavailable');
+}
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b0714);
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 50);
+const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.03, 30);
+const controls = new LookControls(camera, canvas, { center: [0, 1.55, 0.3], yaw: 0, pitch: -0.18 });
 
-// --- Lighting: purple LED wash like the night photo, plus the monitor glow.
+// --- Build the room.
 
-scene.add(new THREE.HemisphereLight(0x8a7cff, 0x2a1a10, 0.6));
+const room = buildRoom(scene);
+const desk = buildDesk(scene);
+const shelves = buildShelves(scene);
+const gear = buildGear(scene);
+const posters = buildPosters(scene);
 
-const ledLight = new THREE.PointLight(0x9b5cff, 6, 7, 1.5);
-ledLight.position.set(-1.4, 2.1, -1.0);
-ledLight.castShadow = true;
-ledLight.shadow.mapSize.set(1024, 1024);
-scene.add(ledLight);
+const cooler = buildCooler();
+cooler.position.set(-1.45, 0, -1.35);
+cooler.rotation.y = Math.PI / 2;
+scene.add(cooler);
 
-const fillLight = new THREE.PointLight(0xffc48a, 1.6, 6, 1.5);
-fillLight.position.set(0.9, 2.0, 1.0);
-scene.add(fillLight);
+const floorLamp = buildFloorLamp();
+floorLamp.position.set(HALF - 0.22, 0, 0.0);
+scene.add(floorLamp);
 
-// --- Room shell. Planes face inward, so walls between the camera and the
-// player are back-face culled and the room reads as a dollhouse cutaway.
+const monstera = buildMonstera();
+monstera.position.set(1.42, 0, -1.42);
+scene.add(monstera);
 
-function plankTexture() {
-  const c = document.createElement('canvas');
-  c.width = 512;
-  c.height = 512;
-  const g = c.getContext('2d');
-  const rows = 8;
-  for (let i = 0; i < rows; i++) {
-    const shade = 120 + Math.random() * 30;
-    g.fillStyle = `rgb(${shade}, ${shade * 0.62}, ${shade * 0.36})`;
-    g.fillRect(0, (i * c.height) / rows, c.width, c.height / rows);
-    g.fillStyle = 'rgba(0,0,0,0.35)';
-    g.fillRect(0, (i * c.height) / rows, c.width, 2);
-    const seam = Math.random() * c.width;
-    g.fillRect(seam, (i * c.height) / rows, 2, c.height / rows);
-  }
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(3, 3);
-  return tex;
-}
+const guitar = buildGuitar();
+guitar.position.set(-1.5, 0, 1.48);
+guitar.rotation.y = Math.atan2(1.5, -1.2);
+scene.add(guitar);
 
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(ROOM.w, ROOM.d),
-  new THREE.MeshStandardMaterial({ map: plankTexture(), roughness: 0.7 }),
+const pad = buildPracticePad();
+pad.position.set(-1.35, 0, 1.02);
+scene.add(pad);
+
+const lava = buildLavaLamp();
+lava.group.position.set(shelves.lavaAnchor.u, shelves.lavaAnchor.y, shelves.lavaAnchor.z);
+shelves.lavaAnchor.frame.add(lava.group);
+
+const topo = buildTopoMap();
+const east = wallFrame('east');
+topo.group.position.set(0.47, 1.62, 0);
+east.add(topo.group);
+const lightSwitch = buildLightSwitch();
+lightSwitch.group.position.set(0.85, 1.15, 0);
+east.add(lightSwitch.group);
+scene.add(east);
+
+// The doorway itself is a station: an invisible panel filling the opening.
+const doorway = new THREE.Mesh(
+  new THREE.PlaneGeometry(DOOR.x1 - DOOR.x0, DOOR.y1 - DOOR.y0),
+  new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
 );
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
+doorway.position.set((DOOR.x0 + DOOR.x1) / 2, (DOOR.y0 + DOOR.y1) / 2, -0.06);
+east.add(doorway);
 
-const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x8c7464, roughness: 0.95 });
-const walls = [
-  { pos: [0, ROOM.h / 2, -ROOM.d / 2], rotY: 0, width: ROOM.w },
-  { pos: [0, ROOM.h / 2, ROOM.d / 2], rotY: Math.PI, width: ROOM.w },
-  { pos: [-ROOM.w / 2, ROOM.h / 2, 0], rotY: Math.PI / 2, width: ROOM.d },
-  { pos: [ROOM.w / 2, ROOM.h / 2, 0], rotY: -Math.PI / 2, width: ROOM.d },
-];
-for (const { pos, rotY, width } of walls) {
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(width, ROOM.h), wallMaterial);
-  wall.position.set(...pos);
-  wall.rotation.y = rotY;
-  wall.receiveShadow = true;
-  scene.add(wall);
+const lighting = new Lighting(scene, renderer, { windowView: room.window.view, ledStrip: room.led });
+
+// --- UI.
+
+const tooltip = new Tooltip(document.querySelector('#tooltip'));
+const stations = new Stations({ scene, camera, controls, canvas, tooltip });
+const card = new Card(document.querySelector('#card'), { onBack: () => back() });
+const terminal = new Terminal(document.querySelector('#computer'), { onExit: () => back() });
+
+let finaleQueued = false;
+function back() {
+  if (stations.active) stations.close();
+  else card.close();
 }
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.w, ROOM.d), wallMaterial);
-ceiling.rotation.x = Math.PI / 2;
-ceiling.position.y = ROOM.h;
-scene.add(ceiling);
-
-// --- Desk: black standing desk with a brown mat, split keyboard, one monitor.
-
-function box(w, h, d, color, opts = {}) {
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(w, h, d),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.6, ...opts }),
-  );
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  return mesh;
-}
-
-const DESK = { w: 1.5, d: 0.72, top: 0.74 };
-const deskZ = -ROOM.d / 2 + DESK.d / 2 + 0.04;
-const desk = new THREE.Group();
-desk.position.set(0, 0, deskZ);
-scene.add(desk);
-
-const deskTop = box(DESK.w, 0.04, DESK.d, 0x141418);
-deskTop.position.y = DESK.top - 0.02;
-desk.add(deskTop);
-
-for (const x of [-0.6, 0.6]) {
-  const column = box(0.07, DESK.top - 0.04, 0.07, 0x111114, { metalness: 0.4 });
-  column.position.set(x, (DESK.top - 0.04) / 2, 0);
-  desk.add(column);
-  const foot = box(0.08, 0.04, DESK.d - 0.06, 0x111114, { metalness: 0.4 });
-  foot.position.set(x, 0.02, 0);
-  desk.add(foot);
-}
-
-const mat = box(0.9, 0.004, 0.4, 0x6b4428, { roughness: 0.9 });
-mat.position.set(0, DESK.top + 0.002, 0.1);
-desk.add(mat);
-
-for (const side of [-1, 1]) {
-  const half = box(0.2, 0.025, 0.14, 0x3a3a40);
-  half.position.set(side * 0.13, DESK.top + 0.016, 0.14);
-  half.rotation.y = -side * 0.18;
-  desk.add(half);
-}
-
-// Monitor screen is a canvas texture on an unlit material so it glows.
-function screenTexture() {
-  const c = document.createElement('canvas');
-  c.width = 1024;
-  c.height = 576;
-  const g = c.getContext('2d');
-  g.fillStyle = '#12101c';
-  g.fillRect(0, 0, c.width, c.height);
-  g.fillStyle = '#2a2540';
-  g.fillRect(0, 0, c.width, 40);
-  g.font = '28px monospace';
-  const lines = [
-    ['#a78bfa', '$ whoami'],
-    ['#e9e4f5', 'Brandon Apol'],
-    ['#9d93b8', 'Fullstack / Site Reliability Engineer'],
-    ['#e9e4f5', ''],
-    ['#a78bfa', '$ ls ~/links'],
-    ['#e9e4f5', 'resume  autobutler.org  quark  birchwood.lol'],
-    ['#e9e4f5', ''],
-    ['#a78bfa', '$ walk up and press E to log in_'],
-  ];
-  lines.forEach(([color, text], i) => {
-    g.fillStyle = color;
-    g.fillText(text, 40, 100 + i * 52);
+function cardStation(id, object, focus, { extra, onOpen, onClose } = {}) {
+  return stations.add({
+    id,
+    name: copy[id].name,
+    hint: copy[id].hint,
+    object,
+    focus,
+    open() {
+      card.open(copy[id], extra?.());
+      onOpen?.();
+    },
+    close() {
+      card.close();
+      onClose?.();
+    },
   });
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
 }
 
-const MONITOR = { w: 0.62, h: 0.36 };
-const monitor = new THREE.Group();
-monitor.position.set(0, DESK.top, -0.16);
-desk.add(monitor);
+// --- Stations.
 
-const stand = box(0.05, 0.2, 0.05, 0x2a2a30, { metalness: 0.5 });
-stand.position.y = 0.1;
-monitor.add(stand);
-const standBase = box(0.22, 0.012, 0.16, 0x2a2a30, { metalness: 0.5 });
-standBase.position.y = 0.006;
-monitor.add(standBase);
+stations.add({
+  id: 'computer',
+  name: copy.computer.name,
+  hint: copy.computer.hint,
+  object: desk.computer,
+  focus: focusFrom([0.08, desk.screenCenterY, DESK.z - 0.19], [0, 0, 1], 0.6),
+  open: () => terminal.open(),
+  close: () => terminal.close(),
+});
 
-const bezel = box(MONITOR.w + 0.02, MONITOR.h + 0.02, 0.025, 0x0c0c0f);
-bezel.position.y = 0.2 + MONITOR.h / 2;
-monitor.add(bezel);
+cardStation('keyboard', desk.keyboard, focusFrom([0, DESK.top + 0.03, DESK.z + 0.14], [0, 1.1, 1], 0.6));
+cardStation('cooler', cooler, focusFrom([-1.45, 0.3, -1.35], [1, 0.9, 0.7], 1.0));
+cardStation('guitar', guitar, focusFrom([-1.5, 0.55, 1.45], [1.5, 0.45, -1.2], 1.15));
 
-const screen = new THREE.Mesh(
-  new THREE.PlaneGeometry(MONITOR.w, MONITOR.h),
-  new THREE.MeshBasicMaterial({ map: screenTexture(), toneMapped: false }),
-);
-screen.position.set(0, bezel.position.y, 0.0135);
-monitor.add(screen);
+let spinning = false;
+cardStation('records', shelves.records.objects, focusFrom([-0.72, 0.85, HALF - 0.2], [0, 0.55, -1], 0.95), {
+  extra: () =>
+    copy.records.spotifyEmbed
+      ? el('iframe', { src: copy.records.spotifyEmbed, height: '352', loading: 'lazy', title: 'Spotify playlist', allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' })
+      : null,
+  onOpen: () => (spinning = true),
+  onClose: () => (spinning = false),
+});
 
-const screenGlow = new THREE.PointLight(0x9fb4ff, 1.2, 2.2, 2);
-screenGlow.position.set(0, bezel.position.y, 0.3);
-monitor.add(screenGlow);
+cardStation('climbs', gear.gear, focusFrom([1.0, 1.0, HALF - 0.35], [-0.35, 0.25, -1], 1.7));
+cardStation('topo', topo.group, focusFrom([HALF - 0.03, 1.62, 0.47], [-1, 0, 0], 0.85));
+cardStation('poster', posters.poster, focusFrom([-1.4, 1.55, -HALF + 0.02], [0.25, 0, 1], 1.05));
 
-// --- Player: a simple capsule figure.
-
-const player = new THREE.Group();
-const body = new THREE.Mesh(
-  new THREE.CapsuleGeometry(0.17, 0.55, 6, 16),
-  new THREE.MeshStandardMaterial({ color: 0x3b4a6b, roughness: 0.7 }),
-);
-body.position.y = 0.17 + 0.55 / 2;
-body.castShadow = true;
-player.add(body);
-const head = new THREE.Mesh(
-  new THREE.SphereGeometry(0.13, 24, 16),
-  new THREE.MeshStandardMaterial({ color: 0xe0b48f, roughness: 0.8 }),
-);
-head.position.y = 1.03;
-head.castShadow = true;
-player.add(head);
-// A small nose so facing direction is readable.
-const nose = new THREE.Mesh(
-  new THREE.BoxGeometry(0.04, 0.04, 0.06),
-  head.material,
-);
-nose.position.set(0, 1.03, -0.13);
-player.add(nose);
-player.position.set(0, 0, 0.8);
-scene.add(player);
-
-// --- Collision: clamp to the room, push out of axis-aligned furniture.
-
-const colliders = [
-  { minX: -DESK.w / 2, maxX: DESK.w / 2, minZ: -ROOM.d / 2, maxZ: deskZ + DESK.d / 2 },
-];
-
-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-
-function resolveCollisions(p) {
-  const r = PLAYER_RADIUS;
-  p.x = clamp(p.x, -ROOM.w / 2 + r, ROOM.w / 2 - r);
-  p.z = clamp(p.z, -ROOM.d / 2 + r, ROOM.d / 2 - r);
-  for (const b of colliders) {
-    const cx = clamp(p.x, b.minX, b.maxX);
-    const cz = clamp(p.z, b.minZ, b.maxZ);
-    const dx = p.x - cx;
-    const dz = p.z - cz;
-    const d2 = dx * dx + dz * dz;
-    if (d2 >= r * r) continue;
-    if (d2 > 1e-8) {
-      const d = Math.sqrt(d2);
-      p.x = cx + (dx / d) * r;
-      p.z = cz + (dz / d) * r;
-    } else {
-      p.z = b.maxZ + r;
-    }
-  }
+cardStation('pad', pad, focusFrom([-1.35, 0.76, 1.02], [1, 1.1, -0.4], 0.85), {
+  extra: () =>
+    el('div', { class: 'links' }, el('button', { type: 'button', class: 'button', onclick: () => drum() }, '▶ play it again')),
+  onOpen: () => drum(),
+});
+function drum() {
+  if (playParadiddle()) return;
+  // Muted: point at the sound toggle instead.
+  soundButton.classList.remove('flash');
+  void soundButton.offsetWidth;
+  soundButton.classList.add('flash');
 }
 
-// --- Input.
+cardStation('lavalamp', lava.group, focusFrom([-HALF + 0.14, 1.32, 0.35], [1, 0.15, 0], 0.7), {
+  extra: () => {
+    const code = el('code', { class: 'hash' }, '…');
+    lava.entropy().then((h) => (code.textContent = h)).catch(() => (code.textContent = 'crypto.subtle unavailable here'));
+    return code;
+  },
+});
 
-const keys = new Set();
+cardStation('doorway', doorway, focusFrom([HALF + 0.4, 1.15, (DOOR.x0 + DOOR.x1) / 2], [-1, 0.1, -0.35], 1.9));
+
+stations.add({
+  id: 'lights',
+  name: copy.lights.name,
+  hint: copy.lights.hint,
+  object: lightSwitch.group,
+  open() {
+    lighting.toggle();
+    lightSwitch.toggle.position.y = lighting.isDay ? -0.008 : 0.008;
+  },
+});
+
+const quest = new Quest(document.querySelector('#quest'), {
+  stations: stations.list.map((s) => ({ id: s.id, name: s.name })),
+  onComplete: () => (finaleQueued = true),
+});
+stations.addEventListener('visit', (e) => {
+  quest.mark(e.station.id);
+  // The light switch has no card to close, so show the finale right away.
+  if (finaleQueued && !e.station.focus) showFinale();
+});
+stations.addEventListener('focusend', () => {
+  if (finaleQueued) setTimeout(showFinale, 900);
+});
+function showFinale() {
+  if (!finaleQueued) return;
+  finaleQueued = false;
+  card.open(finale);
+}
+
 window.addEventListener('keydown', (e) => {
-  const k = e.key.toLowerCase();
-  if (mode === 'computer') {
-    if (k === 'escape') closeComputer();
-    return;
-  }
-  keys.add(k);
-  if (k === 'e' && nearDesk) openComputer();
-});
-window.addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
-window.addEventListener('blur', () => keys.clear());
-
-document.querySelector('#close').addEventListener('click', closeComputer);
-
-// Clicking or tapping the monitor also opens it, which covers touch devices.
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-canvas.addEventListener('pointerdown', (e) => {
-  if (mode !== 'walk') return;
-  pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
-  raycaster.setFromCamera(pointer, camera);
-  if (raycaster.intersectObject(screen).length) openComputer();
+  if (e.key === 'Escape' && (stations.active || card.isOpen)) back();
 });
 
-// --- Modes: walking around, or zoomed into the computer.
+const soundButton = document.querySelector('#sound');
+const renderSound = () => {
+  soundButton.textContent = sound.muted ? 'sound: off' : 'sound: on';
+  soundButton.setAttribute('aria-pressed', String(!sound.muted));
+};
+soundButton.addEventListener('click', () => {
+  sound.muted = !sound.muted;
+  renderSound();
+});
+renderSound();
 
-let mode = 'walk';
-let nearDesk = false;
+// --- Loop.
 
-function openComputer() {
-  mode = 'computer';
-  keys.clear();
-  promptEl.hidden = true;
-}
+topo.ready.then(() => (renderer.shadowMap.needsUpdate = true));
 
-function closeComputer() {
-  mode = 'walk';
-  computerEl.hidden = true;
-}
-
-const interactPoint = new THREE.Vector3(0, 0, deskZ + DESK.d / 2 + 0.35);
-const screenWorld = new THREE.Vector3();
-const camPos = new THREE.Vector3();
-const camTarget = new THREE.Vector3();
-const desiredPos = new THREE.Vector3();
-const desiredTarget = new THREE.Vector3();
-const roomCenter = new THREE.Vector3(0, 0.9, 0);
-const FOLLOW_OFFSET = new THREE.Vector3(0, 2.3, 3.6);
-
-function updateCamera(dt) {
-  if (mode === 'computer') {
-    screen.getWorldPosition(screenWorld);
-    desiredTarget.copy(screenWorld);
-    desiredPos.copy(screenWorld).add(new THREE.Vector3(0, 0, 0.62));
-  } else {
-    desiredTarget.copy(player.position).setY(0.9).lerp(roomCenter, 0.35);
-    desiredPos.copy(desiredTarget).add(FOLLOW_OFFSET);
-  }
-  const t = 1 - Math.exp(-6 * dt);
-  camPos.lerp(desiredPos, t);
-  camTarget.lerp(desiredTarget, t);
-  camera.position.copy(camPos);
-  camera.lookAt(camTarget);
-
-  if (mode === 'computer' && computerEl.hidden && camPos.distanceTo(desiredPos) < 0.03) {
-    computerEl.hidden = false;
-  }
-}
-
-// --- Main loop.
-
-const move = new THREE.Vector3();
-let walkPhase = 0;
-
-function updatePlayer(dt) {
-  move.set(0, 0, 0);
-  if (keys.has('w') || keys.has('arrowup')) move.z -= 1;
-  if (keys.has('s') || keys.has('arrowdown')) move.z += 1;
-  if (keys.has('a') || keys.has('arrowleft')) move.x -= 1;
-  if (keys.has('d') || keys.has('arrowright')) move.x += 1;
-
-  const moving = mode === 'walk' && move.lengthSq() > 0;
-  if (moving) {
-    move.normalize().multiplyScalar(PLAYER_SPEED * dt);
-    player.position.add(move);
-    resolveCollisions(player.position);
-
-    const targetYaw = Math.atan2(-move.x, -move.z);
-    let delta = targetYaw - player.rotation.y;
-    delta = Math.atan2(Math.sin(delta), Math.cos(delta));
-    player.rotation.y += delta * (1 - Math.exp(-14 * dt));
-
-    walkPhase += dt * 12;
-  } else {
-    walkPhase = 0;
-  }
-  const bob = Math.abs(Math.sin(walkPhase)) * 0.04;
-  body.position.y = 0.17 + 0.55 / 2 + bob;
-  head.position.y = nose.position.y = 1.03 + bob;
-
-  nearDesk = mode === 'walk' && player.position.distanceTo(interactPoint) < INTERACT_DISTANCE;
-  promptEl.hidden = !nearDesk;
-}
-
-// Start the camera at its resting spot so the first frame doesn't swoop.
-desiredTarget.copy(player.position).setY(0.9).lerp(roomCenter, 0.35);
-camTarget.copy(desiredTarget);
-camPos.copy(desiredTarget).add(FOLLOW_OFFSET);
-
-const clock = new THREE.Clock();
-renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), 0.05);
-  updatePlayer(dt);
-  updateCamera(dt);
+const timer = new THREE.Timer();
+renderer.setAnimationLoop((time) => {
+  timer.update(time);
+  const raw = timer.getDelta();
+  const dt = Math.min(raw, 0.05);
+  const t = timer.getElapsed();
+  // Flights keep their real duration even when frames are slow.
+  controls.update(Math.min(raw, 0.25));
+  lighting.update(dt);
+  lava.update(t);
+  if (spinning) shelves.records.platter.rotation.y -= dt * 3.49; // 33⅓ rpm
+  shelves.records.arm.rotation.y += ((spinning ? 0.62 : 0.35) - shelves.records.arm.rotation.y) * Math.min(1, dt * 4);
   renderer.render(scene, camera);
 });
 
@@ -371,3 +242,11 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// For quick manual testing: ?open=<station id>, ?look=<yaw>,<pitch> (radians)
+const params = new URLSearchParams(location.search);
+const look = params.get('look')?.split(',').map(Number);
+if (look?.length === 2) [controls.yaw, controls.pitch] = look;
+if (params.get('day')) lighting.target = lighting.t = 1;
+const open = params.get('open');
+if (open && stations.get(open)) setTimeout(() => stations.activate(stations.get(open)), 300);

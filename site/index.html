@@ -2,47 +2,45 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Brandon Apol</title>
-    <meta name="description" content="Brandon Apol — Fullstack / Site Reliability Engineer. Walk around my office." />
+    <meta name="description" content="Brandon Apol, Fullstack / Site Reliability Engineer. Look around my office: the computer, the gear wall, the guitar, and the rest." />
+    <meta name="theme-color" content="#0b0714" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Brandon Apol: the office" />
+    <meta property="og:description" content="Fullstack / Site Reliability Engineer. Look around my office to find my résumé, projects, and a few side quests." />
+    <meta property="og:url" content="https://www.brandonapol.dev/" />
+    <meta property="og:image" content="https://www.brandonapol.dev/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0714'/%3E%3Crect x='6' y='8' width='20' height='13' rx='2' fill='%23a78bfa'/%3E%3Crect x='14' y='21' width='4' height='4' fill='%23a78bfa'/%3E%3C/svg%3E" />
   </head>
   <body>
-    <canvas id="scene"></canvas>
+    <a id="skip" href="./resume.html">Skip to résumé →</a>
+
+    <canvas id="scene" aria-label="A 3D model of Brandon's office. Drag to look around and click objects to open them."></canvas>
 
     <div id="hud">
       <strong>Brandon Apol</strong>
-      <span>WASD / arrows to walk · E to interact</span>
+      <span>Drag to look around · click things to open them · Esc to back out</span>
     </div>
 
-    <div id="prompt" hidden>Press <kbd>E</kbd> to use the computer</div>
+    <div id="corner">
+      <div id="quest"></div>
+      <button id="sound" type="button"></button>
+    </div>
 
-    <section id="computer" hidden aria-label="Computer">
-      <div class="window">
-        <header>
-          <span class="dots"><i></i><i></i><i></i></span>
-          <span class="title">brandon@desk: ~</span>
-          <button id="close" type="button" aria-label="Close">esc</button>
-        </header>
-        <div class="body">
-          <p class="cmd">$ whoami</p>
-          <h1>Brandon Apol</h1>
-          <p>Fullstack / Site Reliability Engineer. Former music teacher turned self-taught programmer, co-founder of the SRE practice at Radiance Technologies, and mentor to a team of about twelve engineers.</p>
+    <div id="tooltip" hidden></div>
+    <aside id="card" hidden></aside>
+    <section id="computer" hidden></section>
 
-          <p class="cmd">$ ls ~/links</p>
-          <ul>
-            <li><a href="https://github.com/brandonapol/resume" target="_blank" rel="noopener">résumé</a></li>
-            <li><a href="https://autobutler.org" target="_blank" rel="noopener">autobutler.org</a></li>
-            <li><a href="https://github.com/autobutler-org/quark" target="_blank" rel="noopener">quark</a></li>
-            <li><a href="https://birchwood.lol" target="_blank" rel="noopener">birchwood.lol</a></li>
-            <li><a href="https://github.com/brandonapol/vibecheck" target="_blank" rel="noopener">vibecheck</a></li>
-            <li><a href="https://github.com/brandonapol" target="_blank" rel="noopener">github</a></li>
-            <li><a href="https://linkedin.com/in/brandonapol" target="_blank" rel="noopener">linkedin</a></li>
-          </ul>
+    <div id="nowebgl" hidden>
+      <p>This office needs WebGL, which your browser doesn't seem to support.</p>
+      <p><a href="./resume.html">Read the résumé instead →</a></p>
+    </div>
 
-          <p class="cmd">$ <span class="cursor">▍</span></p>
-        </div>
-      </div>
-    </section>
+    <noscript>
+      <p class="noscript">This office needs JavaScript. <a href="./resume.html">Read the résumé instead →</a></p>
+    </noscript>
 
     <script type="module" src="./src/main.js"></script>
   </body>
