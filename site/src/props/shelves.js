@@ -112,16 +112,19 @@ export function buildShelves(scene) {
   // Small bookshelf on the west wall, with the lava lamp and globe on top.
   const west = wallFrame('west');
   scene.add(west);
-  const small = shelfUnit(0.6, 1.1, 0.28, [0.03, 0.38, 0.73]);
+  // Tall and narrow, so the lava lamp sits up between the hex panels.
+  const small = shelfUnit(0.6, 1.62, 0.28, [0.03, 0.36, 0.69, 1.0, 1.31]);
   small.position.x = -0.2;
   small.rotation.y = 0.03;
   west.add(small);
   small.add(
     books(
       [
-        { x0: -0.27, x1: 0.27, y: 0.04, depth: 0.28, max: 0.32 },
-        { x0: -0.27, x1: 0.1, y: 0.39, depth: 0.28 },
-        { x0: -0.1, x1: 0.27, y: 0.74, depth: 0.28 },
+        { x0: -0.27, x1: 0.27, y: 0.04, depth: 0.28, max: 0.31 },
+        { x0: -0.27, x1: 0.1, y: 0.37, depth: 0.28 },
+        { x0: -0.1, x1: 0.27, y: 0.7, depth: 0.28 },
+        { x0: -0.27, x1: 0.05, y: 1.01, depth: 0.28 },
+        { x0: -0.05, x1: 0.27, y: 1.32, depth: 0.28, max: 0.28 },
       ],
       43,
     ),
@@ -131,16 +134,16 @@ export function buildShelves(scene) {
   globe.add(cyl(0.05, 0.06, 0.02, 0x3a2a1a));
   globe.add(rod([0, 0.01, 0], [0, 0.12, 0], 0.006, 0x8a6d3a, { metalness: 0.6 }));
   globe.add(at(new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), mat(0x6f8fa8, { roughness: 0.5 })), 0, 0.2, 0));
-  globe.position.set(0.18, 0.4, 0.14);
+  globe.position.set(0.18, 0.37, 0.14);
   small.add(globe);
   // Hats, because the real shelf has them.
   const hat = new THREE.Group();
   hat.add(cyl(0.16, 0.16, 0.01, 0x8a3b3b, {}, 24));
   hat.add(at(cyl(0.08, 0.095, 0.1, 0x8a3b3b, {}, 24), 0, 0.05, 0));
-  hat.position.set(-0.05, 1.111, 0.14);
+  hat.position.set(-0.12, 1.631, 0.14);
   hat.rotation.z = 0.05;
   small.add(hat);
 
-  out.lavaAnchor = { frame: west, u: -0.2 + 0.2, y: 1.11, z: 0.15 };
+  out.lavaAnchor = { frame: west, u: -0.2 + 0.16, y: 1.63, z: 0.15 };
   return out;
 }

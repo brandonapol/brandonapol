@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mat, mesh, box, cyl, rod, at, rng } from '../util.js';
+import { mat, mesh, box, cyl, rod, at, rng, canvasTexture } from '../util.js';
 import { wallFrame, WINDOW } from './room.js';
 import * as tex from '../textures.js';
 import { stations as copy } from '../content.js';
@@ -102,93 +102,189 @@ export function buildMonstera() {
   return g;
 }
 
-// Blonde Epiphone Casino: thinline hollow body, double cutaways, two P-90s.
-function casinoBodyShape() {
+// Blonde Epiphone Casino: thin hollow body, rounded double cutaways, two
+// dog-ear P-90s, trapeze tailpiece, cream binding, natural blonde top.
+const BODY_L = 0.48;
+const BODY_HALF = [
+  [0, 0],
+  [0.09, 0.01],
+  [0.16, 0.045],
+  [0.196, 0.11],
+  [0.198, 0.165],
+  [0.175, 0.225],
+  [0.148, 0.268],
+  [0.142, 0.3],
+  [0.152, 0.345],
+  [0.156, 0.385],
+  [0.142, 0.428],
+  [0.116, 0.452], // horn tip
+  [0.094, 0.444],
+  [0.072, 0.418], // into the cutaway
+  [0.048, 0.414],
+  [0.03, 0.44],
+  [0.026, BODY_L],
+];
+
+function casinoShape(scale = 1) {
+  const pts = [...BODY_HALF, ...BODY_HALF.slice().reverse().map(([x, y]) => [-x, y])].map(
+    ([x, y]) => new THREE.Vector2(x * scale, (y - BODY_L / 2) * scale + BODY_L / 2),
+  );
+  const outline = new THREE.SplineCurve(pts).getPoints(140);
   const s = new THREE.Shape();
-  // Outline, bottom (strap button) at y=0, neck joint at y=0.47. Mirrored halves.
-  const half = [
-    [0, 0],
-    [0.12, 0.012],
-    [0.19, 0.08],
-    [0.205, 0.17],
-    [0.17, 0.26],
-    [0.15, 0.3],
-    [0.165, 0.37],
-    [0.15, 0.43], // horn
-    [0.12, 0.45],
-    [0.085, 0.4], // cutaway
-    [0.04, 0.42],
-    [0.025, 0.47],
-  ];
-  const pts = [...half, ...half.slice().reverse().map(([x, y]) => [-x, y])];
-  const curve = new THREE.SplineCurve(pts.map(([x, y]) => new THREE.Vector2(x, y)));
-  const sampled = curve.getPoints(90);
-  s.moveTo(sampled[0].x, sampled[0].y);
-  for (const p of sampled.slice(1)) s.lineTo(p.x, p.y);
+  s.moveTo(outline[0].x, outline[0].y);
+  for (const p of outline.slice(1)) s.lineTo(p.x, p.y);
   s.closePath();
   return s;
 }
 
+// Natural blonde top: pale center, warmer amber toward the edges, faint grain.
+function blondeTop() {
+  return canvasTexture(256, 320, (g, w, h) => {
+    const grad = g.createRadialGradient(w / 2, h * 0.42, 20, w / 2, h * 0.45, w * 0.75);
+    grad.addColorStop(0, '#f6e4b8');
+    grad.addColorStop(0.65, '#ecca8a');
+    grad.addColorStop(1, '#c9934e');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(150, 100, 40, 0.10)';
+    for (let x = 0; x < w; x += 5 + Math.random() * 6) {
+      g.beginPath();
+      g.moveTo(x, 0);
+      g.bezierCurveTo(x + 4, h * 0.3, x - 4, h * 0.7, x + 2, h);
+      g.stroke();
+    }
+  });
+}
+
 function fHole(side) {
   const s = new THREE.Shape();
-  const x = side * 0.11;
-  s.moveTo(x - 0.006, 0.12);
-  s.bezierCurveTo(x + side * 0.02, 0.17, x - side * 0.02, 0.24, x + 0.004, 0.29);
-  s.lineTo(x + 0.01, 0.288);
-  s.bezierCurveTo(x - side * 0.012, 0.24, x + side * 0.028, 0.17, x + 0.004, 0.12);
+  const x = side * 0.105;
+  s.moveTo(x, 0.135);
+  s.bezierCurveTo(x + side * 0.016, 0.18, x - side * 0.016, 0.24, x + side * 0.004, 0.285);
+  s.lineTo(x + side * 0.009, 0.283);
+  s.bezierCurveTo(x - side * 0.008, 0.24, x + side * 0.024, 0.18, x + side * 0.007, 0.133);
   s.closePath();
-  return new THREE.ShapeGeometry(s);
+  const geo = new THREE.ShapeGeometry(s);
+  return geo;
 }
 
 export function buildGuitar() {
   const guitar = new THREE.Group();
-  const blonde = new THREE.MeshPhysicalMaterial({ color: 0xe8c890, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.15 });
+  const DEPTH = 0.032;
+  const top = blondeTop();
+  top.wrapS = top.wrapT = THREE.ClampToEdgeWrapping;
+  // Extrude cap UVs are raw shape coordinates; map them onto the texture.
+  top.repeat.set(1 / 0.42, 1 / BODY_L);
+  top.offset.set(0.5, 0);
+  const finish = { roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 };
   const body = mesh(
-    new THREE.ExtrudeGeometry(casinoBodyShape(), { depth: 0.04, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.006, bevelSegments: 2, curveSegments: 6 }),
-    blonde,
+    new THREE.ExtrudeGeometry(casinoShape(), { depth: DEPTH, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 2 }),
+    new THREE.MeshPhysicalMaterial({ map: top, color: 0xffffff, ...finish }),
     { shadow: true },
   );
   guitar.add(body);
-  const front = 0.047;
-  const dark = mat(0x1a1410);
-  for (const s of [-1, 1]) guitar.add(at(mesh(fHole(s), dark), 0, 0, front));
-  // P-90 pickups, bridge, trapeze tailpiece.
-  guitar.add(at(box(0.085, 0.03, 0.012, 0x16161a), 0, 0.36, front));
-  guitar.add(at(box(0.085, 0.03, 0.012, 0x16161a), 0, 0.26, front));
-  const chrome = mat(0xd0d3d8, { metalness: 0.9, roughness: 0.2 });
-  guitar.add(at(box(0.08, 0.012, 0.012, chrome), 0, 0.2, front + 0.004));
-  guitar.add(rod([-0.03, 0.17, front], [0, 0.02, front], 0.004, chrome));
-  guitar.add(rod([0.03, 0.17, front], [0, 0.02, front], 0.004, chrome));
-  for (const [x, y] of [[0.1, 0.12], [0.14, 0.15], [0.1, 0.07], [0.14, 0.1]]) {
-    guitar.add(at(cyl(0.012, 0.012, 0.014, 0xc9a44a, { metalness: 0.6 }, 12), x, y, front).rotateX(Math.PI / 2));
+  // Cream binding peeking out around the edge.
+  const binding = mesh(
+    new THREE.ExtrudeGeometry(casinoShape(1.012), { depth: DEPTH - 0.004, bevelEnabled: false }),
+    new THREE.MeshPhysicalMaterial({ color: 0xf3ead2, ...finish }),
+  );
+  binding.position.z = 0.002;
+  guitar.add(binding);
+
+  const front = DEPTH + 0.0035;
+  const dark = mat(0x140f0b);
+  for (const s of [-1, 1]) guitar.add(at(mesh(fHole(s), dark), 0, 0, front + 0.0005));
+
+  // No environment map in the room, so keep metals only half-metallic or they render black.
+  const chrome = mat(0xe6e8ec, { metalness: 0.45, roughness: 0.22 });
+  const black = mat(0x111114, { roughness: 0.35 });
+  // Dog-ear P-90s.
+  for (const y of [0.355, 0.255]) {
+    guitar.add(at(box(0.07, 0.03, 0.008, black), 0, y, front + 0.004));
+    for (const x of [-0.042, 0.042]) guitar.add(at(cyl(0.006, 0.007, 0.005, 0x111114, {}, 12), x, y, front + 0.002).rotateX(Math.PI / 2));
   }
-  // Pickguard on the treble side.
+  // Tune-o-matic bridge and trapeze tailpiece.
+  guitar.add(at(box(0.075, 0.009, 0.012, chrome), 0, 0.205, front + 0.006));
+  const trapeze = new THREE.Shape();
+  trapeze.moveTo(-0.024, 0.17);
+  trapeze.lineTo(0.024, 0.17);
+  trapeze.lineTo(0.007, 0.015);
+  trapeze.lineTo(-0.007, 0.015);
+  trapeze.closePath();
+  // Open frame: cut out the middle so it reads as a trapeze, not a plate.
+  const gap = new THREE.Path();
+  gap.moveTo(-0.017, 0.16);
+  gap.lineTo(0.017, 0.16);
+  gap.lineTo(0.003, 0.03);
+  gap.lineTo(-0.003, 0.03);
+  gap.closePath();
+  trapeze.holes.push(gap);
+  guitar.add(at(mesh(new THREE.ExtrudeGeometry(trapeze, { depth: 0.003, bevelEnabled: false }), chrome), 0, 0, front + 0.002));
+  // Small black teardrop pickguard on the treble side.
   const guard = new THREE.Shape();
-  guard.moveTo(0.05, 0.42);
-  guard.quadraticCurveTo(0.15, 0.4, 0.13, 0.26);
-  guard.lineTo(0.06, 0.28);
+  guard.moveTo(0.05, 0.395);
+  guard.bezierCurveTo(0.085, 0.39, 0.105, 0.34, 0.098, 0.3);
+  guard.bezierCurveTo(0.094, 0.285, 0.075, 0.3, 0.062, 0.33);
   guard.closePath();
-  guitar.add(at(mesh(new THREE.ShapeGeometry(guard), mat(0x1c1612, { roughness: 0.3 })), 0, 0, front + 0.002));
-  // Neck, fingerboard, headstock, tuners.
-  guitar.add(at(box(0.045, 0.46, 0.022, 0xc99a5a), 0, 0.69, 0.03));
-  guitar.add(at(box(0.043, 0.44, 0.006, 0x2b1a12), 0, 0.68, 0.044));
-  for (let i = 1; i < 14; i++) guitar.add(at(box(0.044, 0.002, 0.002, 0xcfd2d6), 0, 0.47 + i * 0.03 * (1 - i * 0.015), 0.048));
-  const head = box(0.08, 0.17, 0.016, 0x16120f);
-  head.position.set(0, 1.0, 0.028);
-  head.rotation.x = -0.25;
+  guitar.add(at(mesh(new THREE.ShapeGeometry(guard), mat(0x0d0b0a, { roughness: 0.25 })), 0, 0, front + 0.012));
+  // Gold bell knobs and the toggle switch.
+  for (const [x, y] of [[0.085, 0.13], [0.13, 0.15], [0.09, 0.08], [0.135, 0.1]]) {
+    guitar.add(at(cyl(0.008, 0.011, 0.014, 0xe0bd62, { metalness: 0.35, roughness: 0.3 }, 14), x, y, front + 0.007).rotateX(Math.PI / 2));
+  }
+  guitar.add(at(cyl(0.004, 0.004, 0.025, chrome, {}, 8), -0.11, 0.38, front + 0.012).rotateX(Math.PI / 2));
+
+  // Slim neck: maple back, rosewood board, dot-and-block inlays, frets.
+  const neckLen = 0.44;
+  const neckY = BODY_L - 0.06 + neckLen / 2;
+  const neck = new THREE.Group();
+  neck.add(at(box(0.046, neckLen, 0.02, 0xd8b07a, { roughness: 0.4 }), 0, 0, 0.018));
+  neck.add(at(box(0.044, neckLen, 0.005, 0x2a1810, { roughness: 0.6 }), 0, 0, 0.0305));
+  for (let i = 1; i <= 15; i++) {
+    const y = neckLen / 2 - neckLen * (1 - 2 ** (-i / 12)) * 1.62;
+    if (y < -neckLen / 2 + 0.01) break;
+    neck.add(at(box(0.044, 0.0015, 0.0015, 0xd6d8dc, { metalness: 0.9 }), 0, y, 0.0335));
+    if ([3, 5, 7, 9, 12, 15].includes(i)) {
+      const prev = neckLen / 2 - neckLen * (1 - 2 ** (-(i - 1) / 12)) * 1.62;
+      neck.add(at(box(0.026, Math.min(0.012, (prev - y) * 0.5), 0.001, 0xf1ead8), 0, (prev + y) / 2, 0.0334));
+    }
+  }
+  neck.position.y = neckY;
+  guitar.add(neck);
+  // Tapered headstock, slightly angled back, with tuners.
+  const headShape = new THREE.Shape();
+  headShape.moveTo(-0.024, 0);
+  headShape.lineTo(-0.042, 0.17);
+  headShape.quadraticCurveTo(0, 0.19, 0.042, 0.17);
+  headShape.lineTo(0.024, 0);
+  headShape.closePath();
+  const head = mesh(new THREE.ExtrudeGeometry(headShape, { depth: 0.014, bevelEnabled: false }), mat(0x120e0b, { roughness: 0.25 }));
+  const headY = neckY + neckLen / 2;
+  head.position.set(0, headY, 0.012);
+  head.rotation.x = -0.22;
   guitar.add(head);
-  for (const s of [-1, 1]) for (let i = 0; i < 3; i++) guitar.add(at(cyl(0.006, 0.006, 0.03, 0xcfd2d6, { metalness: 0.9 }, 8), s * 0.055, 0.95 + i * 0.045, 0.02).rotateZ(Math.PI / 2));
-  for (let i = 0; i < 6; i++) guitar.add(rod([-0.015 + i * 0.006, 0.17, front + 0.008], [-0.015 + i * 0.006, 0.92, 0.05], 0.0007, 0xe0e0e0, { metalness: 1 }));
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const y = headY + 0.04 + i * 0.045;
+      guitar.add(at(cyl(0.0045, 0.0045, 0.035, chrome, {}, 8), s * 0.048, y, 0.0).rotateZ(Math.PI / 2));
+      guitar.add(at(box(0.012, 0.016, 0.006, 0xf1ead8), s * 0.068, y, 0.0));
+    }
+  }
+  // Strings.
+  for (let i = 0; i < 6; i++) {
+    const x = (i - 2.5) * 0.0065;
+    guitar.add(rod([x * 1.3, 0.18, front + 0.012], [x, headY, 0.034], 0.0005, 0xe8e8e8, { metalness: 1 }));
+  }
 
   // A-frame stand.
   const stand = new THREE.Group();
-  const black = mat(0x18181b, { metalness: 0.3 });
-  stand.add(rod([-0.15, 0, 0.12], [0, 0.65, -0.12], 0.008, black));
-  stand.add(rod([0.15, 0, 0.12], [0, 0.65, -0.12], 0.008, black));
-  stand.add(rod([0, 0, -0.3], [0, 0.65, -0.12], 0.008, black));
-  stand.add(rod([-0.15, 0.12, 0.12], [0.15, 0.12, 0.12], 0.008, black));
-  guitar.position.set(0, 0.08, 0.1);
-  guitar.rotation.x = -0.22;
+  const standMat = mat(0x18181b, { metalness: 0.3 });
+  stand.add(rod([-0.15, 0, 0.12], [0, 0.7, -0.13], 0.008, standMat));
+  stand.add(rod([0.15, 0, 0.12], [0, 0.7, -0.13], 0.008, standMat));
+  stand.add(rod([0, 0, -0.3], [0, 0.7, -0.13], 0.008, standMat));
+  stand.add(rod([-0.15, 0.12, 0.12], [0.15, 0.12, 0.12], 0.008, standMat));
+  stand.add(at(box(0.32, 0.025, 0.06, 0x18181b), 0, 0.12, 0.13));
+  guitar.position.set(0, 0.13, 0.11);
+  guitar.rotation.x = -0.2;
 
   const g = new THREE.Group();
   g.add(stand, guitar);

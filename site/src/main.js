@@ -141,7 +141,7 @@ stations.add({
 
 cardStation('keyboard', desk.keyboard, focusFrom([0, DESK.top + 0.03, DESK.z + 0.14], [0, 1.1, 1], 0.6));
 cardStation('cooler', cooler, focusFrom([-1.58, 0.3, -0.98], [1, 0.9, 0.25], 1.0));
-cardStation('guitar', guitar, focusFrom([-1.5, 0.55, 1.45], [1.5, 0.45, -1.2], 1.15));
+cardStation('guitar', guitar, focusFrom([-1.5, 0.6, 1.45], [1.5, 0.4, -1.2], 1.05));
 
 let spinning = false;
 cardStation('records', shelves.records.objects, focusFrom([-0.72, 0.85, HALF - 0.2], [0, 0.55, -1], 0.95), {
@@ -177,7 +177,7 @@ function drum() {
   soundButton.classList.add('flash');
 }
 
-cardStation('lavalamp', lava.group, focusFrom([-HALF + 0.15, 1.32, 0.0], [1, 0.15, 0], 0.7), {
+cardStation('lavalamp', lava.group, focusFrom([-HALF + 0.15, 1.84, 0.04], [1, -0.25, 0], 0.75), {
   extra: () => {
     const code = el('code', { class: 'hash' }, '…');
     lava.entropy().then((h) => (code.textContent = h)).catch(() => (code.textContent = 'crypto.subtle unavailable here'));
