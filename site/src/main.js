@@ -11,7 +11,7 @@ import { sound, playParadiddle } from './audio.js';
 import { buildRoom, wallFrame, DOOR } from './props/room.js';
 import { buildDesk, DESK } from './props/desk.js';
 import { buildShelves } from './props/shelves.js';
-import { buildGear, bike, pack } from './props/gear.js';
+import { buildGear, pack } from './props/gear.js';
 import { buildCooler, buildFloorLamp, buildMonstera, buildGuitar, buildPracticePad, buildPosters, buildLightSwitch } from './props/decor.js';
 import { buildLavaLamp } from './props/lavalamp.js';
 import { buildTopoMap } from './props/topo.js';
@@ -55,11 +55,6 @@ cooler.position.set(-1.58, 0, -0.98);
 cooler.rotation.y = Math.PI / 2 + 0.05;
 scene.add(cooler);
 
-// The second bike leans in front of the closet.
-const closetBike = bike(0x8a8f98);
-closetBike.position.set(HALF - 0.38, 0, -0.64);
-closetBike.rotation.set(0, Math.PI / 2 + 0.05, 0.05);
-scene.add(closetBike);
 
 const floorLamp = buildFloorLamp();
 floorLamp.position.set(HALF - 0.24, 0, 0.14);
