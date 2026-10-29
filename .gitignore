@@ -1,0 +1,6 @@
+# Reference photos of the real room — kept local, never committed.
+photos/
+
+node_modules/
+site/dist/
+.DS_Store

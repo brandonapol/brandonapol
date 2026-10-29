@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brandon Apol</title>
+    <meta name="description" content="Brandon Apol — Fullstack / Site Reliability Engineer. Walk around my office." />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <div id="hud">
+      <strong>Brandon Apol</strong>
+      <span>WASD / arrows to walk · E to interact</span>
+    </div>
+
+    <div id="prompt" hidden>Press <kbd>E</kbd> to use the computer</div>
+
+    <section id="computer" hidden aria-label="Computer">
+      <div class="window">
+        <header>
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="title">brandon@desk: ~</span>
+          <button id="close" type="button" aria-label="Close">esc</button>
+        </header>
+        <div class="body">
+          <p class="cmd">$ whoami</p>
+          <h1>Brandon Apol</h1>
+          <p>Fullstack / Site Reliability Engineer. Former music teacher turned self-taught programmer, co-founder of the SRE practice at Radiance Technologies, and mentor to a team of about twelve engineers.</p>
+
+          <p class="cmd">$ ls ~/links</p>
+          <ul>
+            <li><a href="https://github.com/brandonapol/resume" target="_blank" rel="noopener">résumé</a></li>
+            <li><a href="https://autobutler.org" target="_blank" rel="noopener">autobutler.org</a></li>
+            <li><a href="https://github.com/autobutler-org/quark" target="_blank" rel="noopener">quark</a></li>
+            <li><a href="https://birchwood.lol" target="_blank" rel="noopener">birchwood.lol</a></li>
+            <li><a href="https://github.com/brandonapol/vibecheck" target="_blank" rel="noopener">vibecheck</a></li>
+            <li><a href="https://github.com/brandonapol" target="_blank" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/brandonapol" target="_blank" rel="noopener">linkedin</a></li>
+          </ul>
+
+          <p class="cmd">$ <span class="cursor">▍</span></p>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
