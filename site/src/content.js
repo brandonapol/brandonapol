@@ -81,10 +81,11 @@ export const stations = {
     name: 'Record player',
     hint: 'what I’m listening to',
     kicker: 'Music',
-    title: 'On the turntable',
-    // Set to an open.spotify.com/embed/playlist/... URL once the playlist is picked.
-    spotifyEmbed: null,
-    body: ['The playlist is still being picked. Check back soon.'],
+    title: 'Brandon’s Record Collection',
+    // A clean track sits on top, so the first thing anyone plays has no explicit lyrics.
+    featuredEmbed: 'https://open.spotify.com/embed/track/4XosapYiYaXGcxc83p3DD9?utm_source=generator&theme=0',
+    spotifyEmbed: 'https://open.spotify.com/embed/playlist/4ADWxA6WITqPaPIm6dq8TO?utm_source=generator&theme=0',
+    body: ['Now spinning: Bon Iver, “Everything Is Peaceful Love”. The full collection is below.'],
     note: 'If you’re not logged in to Spotify, you’ll only hear 30-second previews.',
   },
 

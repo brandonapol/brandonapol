@@ -139,10 +139,15 @@ cardStation('guitar', guitar, focusFrom([-1.5, 0.55, 1.45], [1.5, 0.45, -1.2], 1
 
 let spinning = false;
 cardStation('records', shelves.records.objects, focusFrom([-0.72, 0.85, HALF - 0.2], [0, 0.55, -1], 0.95), {
-  extra: () =>
-    copy.records.spotifyEmbed
-      ? el('iframe', { src: copy.records.spotifyEmbed, height: '352', loading: 'lazy', title: 'Spotify playlist', allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' })
-      : null,
+  extra: () => {
+    const allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    return el(
+      'div',
+      { class: 'embeds' },
+      el('iframe', { src: copy.records.featuredEmbed, height: '152', loading: 'lazy', title: 'Now spinning on Spotify', allow }),
+      el('iframe', { src: copy.records.spotifyEmbed, height: '352', loading: 'lazy', title: 'Brandon’s Record Collection on Spotify', allow }),
+    );
+  },
   onOpen: () => (spinning = true),
   onClose: () => (spinning = false),
 });
@@ -242,6 +247,9 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Handles for the e2e tests (and curious people in devtools).
+window.__office = { THREE, camera, controls, stations, lighting, quest };
 
 // For quick manual testing: ?open=<station id>, ?look=<yaw>,<pitch> (radians)
 const params = new URLSearchParams(location.search);

@@ -4,3 +4,5 @@ photos/
 node_modules/
 site/dist/
 .DS_Store
+site/test-results/
+site/playwright-report/
